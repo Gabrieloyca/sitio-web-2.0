@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 208">
+  <defs>
+    <linearGradient id="pinBody" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f5f7fa" />
+    </linearGradient>
+    <linearGradient id="pinStroke" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#161C2D" />
+      <stop offset="100%" stop-color="#232F48" />
+    </linearGradient>
+  </defs>
+  <path d="M80 4C43 4 12 35 12 72c0 52 68 132 68 132s68-80 68-132C148 35 117 4 80 4z" fill="url(#pinBody)" stroke="url(#pinStroke)" stroke-width="8" stroke-linejoin="round"/>
+  <circle cx="80" cy="68" r="38" fill="#fff" stroke="url(#pinStroke)" stroke-width="6"/>
+  <circle cx="62" cy="62" r="8" fill="url(#pinStroke)"/>
+  <circle cx="98" cy="62" r="8" fill="url(#pinStroke)"/>
+  <path d="M54 92c16 18 40 18 54 0" fill="none" stroke="url(#pinStroke)" stroke-width="6" stroke-linecap="round"/>
+</svg>

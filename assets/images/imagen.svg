@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 320" role="img" aria-label="Silhouette stylisée de Gabriel Oyarzun">
+  <defs>
+    <linearGradient id="portrait-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c9d6ff" />
+      <stop offset="100%" stop-color="#e2e6ff" />
+    </linearGradient>
+    <linearGradient id="portrait-accent" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#1f2937" />
+      <stop offset="100%" stop-color="#475569" />
+    </linearGradient>
+  </defs>
+  <rect width="280" height="320" rx="26" fill="url(#portrait-bg)" />
+  <path d="M78 238c16-36 52-56 64-56s48 20 60 56c4 10 4 24 4 36H74c0-12 0-26 4-36z" fill="#ffffff" opacity="0.92" />
+  <path d="M98 138c0-34 22-62 54-62s56 28 56 62-24 66-56 66-54-32-54-66z" fill="#ffffff" opacity="0.92" />
+  <path d="M96 142c8-10 32-16 56-16s48 6 56 16c-6-36-28-62-56-62s-50 26-56 62z" fill="url(#portrait-accent)" />
+  <path d="M100 238c12 14 32 22 54 22s42-8 54-22c-16-24-38-38-54-38s-38 14-54 38z" fill="url(#portrait-accent)" opacity="0.9" />
+  <circle cx="132" cy="172" r="10" fill="#f8fafc" />
+  <circle cx="170" cy="172" r="10" fill="#f8fafc" />
+  <path d="M130 208c8 6 20 10 32 10s24-4 32-10" fill="none" stroke="#f8fafc" stroke-width="8" stroke-linecap="round" />
+  <path d="M78 238c16-36 52-56 64-56s48 20 60 56c4 10 4 24 4 36H74c0-12 0-26 4-36z" fill="#0f172a" opacity="0.16" />
+</svg>
