@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portfolio – Gabriel Oyarzun</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <div id="map" aria-hidden="true"></div>
+
+    <header class="header" role="banner">
+      <nav class="nav" aria-label="Navigation principale"></nav>
+    </header>
+
+    <main>
+      <section id="screen-home" data-screen="home" aria-labelledby="heroTitle">
+        <div class="hero" id="heroBox">
+          <h1 id="heroTitle">Je suis <b>Gabriel Oyarzun</b>,<br /><b>Architecte urbaniste</b>, passionné par le développement durable des territoires.</h1>
+          <p class="hint">Pour en savoir plus :</p>
+          <ul class="bullets">
+            <li data-target="projects"><span class="hand-icon" aria-hidden="true"></span> Études de mobilité en France</li>
+            <li><span class="hand-icon" aria-hidden="true"></span> Recherche / publication (bientôt)</li>
+            <li><span class="hand-icon" aria-hidden="true"></span> Autres projets d’architecture (bientôt)</li>
+          </ul>
+        </div>
+        <div class="photo-card" id="stamp">
+          <div class="photo" role="img" aria-label="Portrait stylisé de Gabriel Oyarzun"></div>
+        </div>
+      </section>
+
+      <section id="screen-projects" data-screen="projects" hidden aria-labelledby="projectIntroTitle">
+        <div class="overlay">
+          <h2 id="projectIntroTitle">Études en France</h2>
+          <p><strong>15</strong> projets en tant que chargée d’études</p>
+          <p><strong>20</strong> en tant que chef de projet</p>
+          <p style="margin-top: 14px"><em>&gt; Cliquez sur les projets pour en savoir plus</em></p>
+        </div>
+        <article id="projectPanel" class="panel" hidden aria-live="polite">
+          <h3 id="ppTitle"></h3>
+          <div class="meta">
+            <strong>Client :</strong> <span id="ppClient"></span>
+            &nbsp;&nbsp; <strong>Partenaire :</strong> <a id="ppPartner" href="#" target="_blank" rel="noopener"></a>
+            &nbsp;&nbsp; <strong>Date :</strong> <span id="ppDate"></span>
+          </div>
+          <h4>Description</h4>
+          <p id="ppDesc"></p>
+        </article>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
