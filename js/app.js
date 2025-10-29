@@ -558,31 +558,25 @@
       article.className = 'pub-card';
       article.setAttribute('role', 'listitem');
 
-      const figure = document.createElement('figure');
-      figure.className = 'pub-card__cover';
-      figure.style.setProperty('--cover-tone', pub.coverTone);
-      const coverLabel = document.createElement('span');
-      coverLabel.className = 'pub-card__cover-label';
-      coverLabel.textContent = pub.journal;
-      figure.appendChild(coverLabel);
-
-      const body = document.createElement('div');
-      body.className = 'pub-card__body';
+      const journal = document.createElement('p');
+      journal.className = 'pub-card__journal';
+      journal.textContent = pub.journal;
+      article.appendChild(journal);
 
       const issue = document.createElement('p');
       issue.className = 'pub-card__issue';
       issue.textContent = pub.issue;
-      body.appendChild(issue);
+      article.appendChild(issue);
 
       const title = document.createElement('h3');
       title.className = 'pub-card__title';
       title.textContent = pub.title;
-      body.appendChild(title);
+      article.appendChild(title);
 
       const authors = document.createElement('p');
       authors.className = 'pub-card__authors';
       authors.textContent = pub.authors;
-      body.appendChild(authors);
+      article.appendChild(authors);
 
       const link = document.createElement('a');
       link.className = 'pub-card__link';
@@ -590,9 +584,8 @@
       link.target = '_blank';
       link.rel = 'noopener';
       link.textContent = pub.doi;
-      body.appendChild(link);
+      article.appendChild(link);
 
-      article.append(figure, body);
       pubList.appendChild(article);
     });
   }
