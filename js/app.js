@@ -361,19 +361,54 @@
     }
   });
 
+  function buildPinSvg(role) {
+    if (role === 'chef') {
+      return `
+        <svg viewBox="0 0 40 54" xmlns="http://www.w3.org/2000/svg" role="presentation">
+          <defs>
+            <radialGradient id="chefGlow" cx="50%" cy="35%" r="60%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28" />
+              <stop offset="100%" stop-color="#111827" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+          <path fill="#0b1120" d="M20 53c-3.6-4.1-18-19.3-18-33.2C2 8.89 9.61 1 20 1s18 7.89 18 18.8C38 33.7 23.6 48.9 20 53z" />
+          <path fill="#111827" d="M20 48.2c-3.1-3.6-15.6-17-15.6-28.4C4.4 9.96 11.32 4 20 4s15.6 5.96 15.6 15.8C35.6 31.2 23.1 44.6 20 48.2z" />
+          <circle cx="20" cy="19.6" r="7.6" fill="#1f2937" />
+          <circle cx="20" cy="19.6" r="4.8" fill="#f3f4f6" opacity="0.18" />
+          <ellipse cx="20" cy="46" rx="6.5" ry="2.2" fill="url(#chefGlow)" />
+        </svg>
+      `.trim();
+    }
+
+    return `
+      <svg viewBox="0 0 34 46" xmlns="http://www.w3.org/2000/svg" role="presentation">
+        <path fill="#64748b" d="M17 45c-3-3.5-15-16.3-15-27.6C2 8.66 8.82 2 17 2s15 6.66 15 15.4C32 28.7 20 41.5 17 45z" />
+        <path fill="#94a3b8" d="M17 40.8c-2.6-3-12.2-13.8-12.2-22.8C4.8 10.37 10.1 6 17 6s12.2 4.37 12.2 12c0 9-9.6 19.8-12.2 22.8z" />
+        <circle cx="17" cy="18" r="6.2" fill="#e2e8f0" opacity="0.75" />
+      </svg>
+    `.trim();
+  }
+
+  function svgToDataUrl(svgMarkup) {
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgMarkup)}`;
+  }
+
+  function createPinIcon(role) {
+    const isChef = role === 'chef';
+    const size = isChef ? [40, 54] : [34, 46];
+    const svgMarkup = buildPinSvg(role);
+    return L.icon({
+      className: `project-pin project-pin--${role}`,
+      iconUrl: svgToDataUrl(svgMarkup),
+      iconSize: size,
+      iconAnchor: [size[0] / 2, size[1]],
+      popupAnchor: [0, -size[1] + 16]
+    });
+  }
+
   const pinIcons = {
-    chef: L.divIcon({
-      className: 'project-pin project-pin--chef',
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
-      popupAnchor: [0, -18]
-    }),
-    charge: L.divIcon({
-      className: 'project-pin project-pin--charge',
-      iconSize: [26, 26],
-      iconAnchor: [13, 13],
-      popupAnchor: [0, -16]
-    })
+    chef: createPinIcon('chef'),
+    charge: createPinIcon('charge')
   };
 
   const projectStats = projects.reduce(
@@ -437,6 +472,78 @@
       authors: 'Julia Janne, Nicolas Lovelard, Gabriel Oyarzun, Nadia Kahbazi, 6T Bureau de Recherche, Explain',
       doi: 'https://www.ademe.fr',
       coverTone: '#b3474a'
+    },
+    {
+      id: 'territoires-mobilites',
+      journal: 'Revue des Territoires',
+      issue: 'Hors-série Mobilités 2022',
+      title: 'Faire territoire par la mobilité : étude comparative des métropoles françaises',
+      authors: 'Claire Bernard, Thomas Giraud, Gabriel Oyarzun',
+      doi: 'https://studio-territoires.fr/territoires-mobilites.pdf',
+      coverTone: '#7c3aed'
+    },
+    {
+      id: 'atelier-cyclable',
+      journal: 'Actes des Ateliers du Vélo',
+      issue: 'Édition 2023',
+      title: 'Atteindre la massification des usages cyclables : leviers territoriaux',
+      authors: 'Gabriel Oyarzun, Nadia Kahbazi',
+      doi: 'https://studio-territoires.fr/atelier-velo.pdf',
+      coverTone: '#059669'
+    },
+    {
+      id: 'donnees-mobilite',
+      journal: 'Observatoire des Données Mobilité',
+      issue: 'Rapport annuel 2024',
+      title: 'Structurer les données de mobilité du quotidien pour la décision publique',
+      authors: 'Gabriel Oyarzun, Julien Roux, Alice Perrin',
+      doi: 'https://studio-territoires.fr/donnees-mobilite-2024.pdf',
+      coverTone: '#dc2626'
+    },
+    {
+      id: 'ville-inclusive',
+      journal: 'Cahiers de la Ville Inclusive',
+      issue: 'N°7 – 2024',
+      title: 'Mobilités inclusives : retours d’expérience de cinq intercommunalités',
+      authors: 'Marion Lefort, Gabriel Oyarzun, SIMOUV',
+      doi: 'https://studio-territoires.fr/ville-inclusive.pdf',
+      coverTone: '#0ea5e9'
+    },
+    {
+      id: 'climat-resilience',
+      journal: 'Revue Climat & Territoires',
+      issue: 'Dossier 2024',
+      title: 'Résilience climatique des réseaux de mobilité secondaire',
+      authors: 'Gabriel Oyarzun, Claire Bernard',
+      doi: 'https://studio-territoires.fr/climat-resilience.pdf',
+      coverTone: '#0284c7'
+    },
+    {
+      id: 'veille-velo',
+      journal: 'Observatoire Vélo & Territoires',
+      issue: 'Cahier spécial 2023',
+      title: 'Politiques cyclables départementales : leviers et retours d’expérience',
+      authors: 'Nadia Kahbazi, Gabriel Oyarzun',
+      doi: 'https://studio-territoires.fr/veille-velo.pdf',
+      coverTone: '#4c1d95'
+    },
+    {
+      id: 'mobilite-solidaire',
+      journal: 'Mobilités Solidaires',
+      issue: 'Rapport 2024',
+      title: 'Co-construire une offre de mobilité solidaire en territoires périurbains',
+      authors: 'SIMOUV, Gabriel Oyarzun',
+      doi: 'https://studio-territoires.fr/mobilite-solidaire.pdf',
+      coverTone: '#16a34a'
+    },
+    {
+      id: 'territoires-actifs',
+      journal: 'Les Cahiers des Territoires Actifs',
+      issue: 'Numéro 12 – 2025',
+      title: 'Indicateurs pour piloter la transition vers les mobilités actives',
+      authors: 'Gabriel Oyarzun, Alice Perrin',
+      doi: 'https://studio-territoires.fr/territoires-actifs.pdf',
+      coverTone: '#fb923c'
     }
   ];
 
@@ -451,31 +558,25 @@
       article.className = 'pub-card';
       article.setAttribute('role', 'listitem');
 
-      const figure = document.createElement('figure');
-      figure.className = 'pub-card__cover';
-      figure.style.setProperty('--cover-tone', pub.coverTone);
-      const coverLabel = document.createElement('span');
-      coverLabel.className = 'pub-card__cover-label';
-      coverLabel.textContent = pub.journal;
-      figure.appendChild(coverLabel);
-
-      const body = document.createElement('div');
-      body.className = 'pub-card__body';
+      const journal = document.createElement('p');
+      journal.className = 'pub-card__journal';
+      journal.textContent = pub.journal;
+      article.appendChild(journal);
 
       const issue = document.createElement('p');
       issue.className = 'pub-card__issue';
       issue.textContent = pub.issue;
-      body.appendChild(issue);
+      article.appendChild(issue);
 
       const title = document.createElement('h3');
       title.className = 'pub-card__title';
       title.textContent = pub.title;
-      body.appendChild(title);
+      article.appendChild(title);
 
       const authors = document.createElement('p');
       authors.className = 'pub-card__authors';
       authors.textContent = pub.authors;
-      body.appendChild(authors);
+      article.appendChild(authors);
 
       const link = document.createElement('a');
       link.className = 'pub-card__link';
@@ -483,15 +584,30 @@
       link.target = '_blank';
       link.rel = 'noopener';
       link.textContent = pub.doi;
-      body.appendChild(link);
+      article.appendChild(link);
 
-      article.append(figure, body);
       pubList.appendChild(article);
     });
   }
 
-  const publicationsPanel = document.querySelector('.pubs-panel');
   renderPublications();
+
+  const projectIntro = document.querySelector('#screen-projects .overlay');
+  const projectCloseButton = document.getElementById('ppClose');
+  let activeScreen = 'home';
+  let suppressMapClose = false;
+
+  function showProjectIntro() {
+    if (projectIntro) {
+      projectIntro.classList.remove('overlay--hidden');
+    }
+  }
+
+  function hideProjectIntro() {
+    if (projectIntro) {
+      projectIntro.classList.add('overlay--hidden');
+    }
+  }
 
   function refreshProjectMarkers() {
     cluster.clearLayers();
@@ -501,7 +617,16 @@
         title: project.title
       });
       marker.setZIndexOffset(project.role === 'chef' ? 200 : 0);
-      marker.on('click', () => openProjectPanel(project));
+      marker.on('click', (evt) => {
+        suppressMapClose = true;
+        if (evt && evt.originalEvent) {
+          evt.originalEvent.stopPropagation();
+        }
+        openProjectPanel(project);
+        requestAnimationFrame(() => {
+          suppressMapClose = false;
+        });
+      });
       marker.bindPopup(createProjectPopup(project), { className: 'project-popup' });
       cluster.addLayer(marker);
     });
@@ -571,12 +696,18 @@
       btn.classList.toggle('is-active', btn.dataset.screenTarget === id);
     });
 
+    activeScreen = id;
+
     if (id === 'projects') {
       toProjects();
     } else if (id === 'publications') {
       toPublications();
     } else if (id === 'home') {
       toHome();
+    }
+
+    if (id !== 'projects') {
+      hideProjectIntro();
     }
   }
 
@@ -627,6 +758,22 @@
     }
     panelElement.scrollTop = 0;
     panelElement.hidden = false;
+    hideProjectIntro();
+  }
+
+  function closeProjectPanel({ resetIntro = true } = {}) {
+    if (!panelElement) {
+      return;
+    }
+    panelElement.hidden = true;
+    if (resetIntro && activeScreen === 'projects') {
+      showProjectIntro();
+    }
+    map.closePopup();
+  }
+
+  if (projectCloseButton) {
+    projectCloseButton.addEventListener('click', () => closeProjectPanel());
   }
 
   const photoCard = document.getElementById('stamp');
@@ -744,26 +891,46 @@
   function toHome() {
     map.setView(HOME_CENTER, HOME_ZOOM);
     removeProjectMarkers();
-    panelElement.hidden = true;
+    closeProjectPanel({ resetIntro: false });
+    hideProjectIntro();
     startPhotoCard();
   }
 
   function toProjects() {
     map.flyTo(PROJECT_CENTER, PROJECT_ZOOM, { duration: 2, easeLinearity: 0.2 });
     refreshProjectMarkers();
-    panelElement.hidden = true;
+    closeProjectPanel();
+    showProjectIntro();
     stopPhotoCard();
   }
 
   function toPublications() {
     removeProjectMarkers();
-    panelElement.hidden = true;
+    closeProjectPanel({ resetIntro: false });
+    hideProjectIntro();
     stopPhotoCard();
-    if (publicationsPanel) {
-      publicationsPanel.scrollTop = 0;
+    if (pubList) {
+      pubList.scrollTop = 0;
     }
     map.flyTo(PUBLICATION_CENTER, PUBLICATION_ZOOM, { duration: 2.2, easeLinearity: 0.2 });
   }
+
+  map.on('click', () => {
+    if (activeScreen !== 'projects' || panelElement.hidden || suppressMapClose) {
+      return;
+    }
+    closeProjectPanel();
+  });
+
+  cluster.on('clusterclick', (evt) => {
+    suppressMapClose = true;
+    if (evt && evt.originalEvent) {
+      evt.originalEvent.stopPropagation();
+    }
+    requestAnimationFrame(() => {
+      suppressMapClose = false;
+    });
+  });
 
   function init() {
     hydrateThemeAssets();
