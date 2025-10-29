@@ -42,6 +42,9 @@
           <p style="margin-top: 14px"><em>&gt; Cliquez sur les projets pour en savoir plus</em></p>
         </div>
         <article id="projectPanel" class="panel" hidden aria-live="polite">
+          <button type="button" class="panel__close" id="ppClose" aria-label="Fermer le détail du projet">
+            <span aria-hidden="true">×</span>
+          </button>
           <h3 id="ppTitle"></h3>
           <dl class="meta" aria-label="Détails du projet">
             <div>
@@ -78,11 +81,11 @@
         hidden
         aria-labelledby="pubTitle"
       >
-        <div class="pubs-panel" role="region" aria-live="polite">
-          <header class="pubs-header">
-            <h2 id="pubTitle">Recherche &amp; publications</h2>
-            <p>Une sélection d’articles académiques et de travaux de recherche auxquels j’ai contribué.</p>
-          </header>
+        <div class="pubs-heading">
+          <h2 id="pubTitle">Recherche &amp; publications</h2>
+          <p>Une sélection d’articles académiques et de travaux de recherche auxquels j’ai contribué.</p>
+        </div>
+        <div class="pubs-shelf" role="region" aria-live="polite">
           <div id="pubList" class="pubs-list" role="list"></div>
         </div>
       </section>
