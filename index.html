@@ -25,7 +25,7 @@
           <p class="hint">Pour en savoir plus :</p>
           <ul class="bullets">
             <li data-target="projects"><span class="hand-icon" aria-hidden="true"></span> Études de mobilité en France</li>
-            <li><span class="hand-icon" aria-hidden="true"></span> Recherche / publication (bientôt)</li>
+            <li data-target="publications"><span class="hand-icon" aria-hidden="true"></span> Recherche & publications</li>
             <li><span class="hand-icon" aria-hidden="true"></span> Autres projets d’architecture (bientôt)</li>
           </ul>
         </div>
@@ -37,20 +37,57 @@
       <section id="screen-projects" data-screen="projects" hidden aria-labelledby="projectIntroTitle">
         <div class="overlay">
           <h2 id="projectIntroTitle">Études en France</h2>
-          <p><strong>15</strong> projets en tant que chargée d’études</p>
-          <p><strong>20</strong> en tant que chef de projet</p>
+          <p><strong><span id="statCharge"></span></strong> projets en tant que chargé d’études</p>
+          <p><strong><span id="statChef"></span></strong> en tant que chef de projet</p>
           <p style="margin-top: 14px"><em>&gt; Cliquez sur les projets pour en savoir plus</em></p>
         </div>
         <article id="projectPanel" class="panel" hidden aria-live="polite">
+          <button type="button" class="panel__close" id="ppClose" aria-label="Fermer le détail du projet">
+            <span aria-hidden="true">×</span>
+          </button>
           <h3 id="ppTitle"></h3>
-          <div class="meta">
-            <strong>Client :</strong> <span id="ppClient"></span>
-            &nbsp;&nbsp; <strong>Partenaire :</strong> <a id="ppPartner" href="#" target="_blank" rel="noopener"></a>
-            &nbsp;&nbsp; <strong>Date :</strong> <span id="ppDate"></span>
-          </div>
+          <dl class="meta" aria-label="Détails du projet">
+            <div>
+              <dt>Année</dt>
+              <dd id="ppDate"></dd>
+            </div>
+            <div>
+              <dt>Client</dt>
+              <dd id="ppClient"></dd>
+            </div>
+            <div>
+              <dt>Partenaire</dt>
+              <dd id="ppPartner"></dd>
+            </div>
+            <div>
+              <dt>Rôle</dt>
+              <dd id="ppRole"></dd>
+            </div>
+            <div>
+              <dt>Type de projet</dt>
+              <dd id="ppType"></dd>
+            </div>
+          </dl>
           <h4>Description</h4>
           <p id="ppDesc"></p>
+          <h4>Compétences mobilisées</h4>
+          <ul id="ppSkills" class="skill-list"></ul>
         </article>
+      </section>
+
+      <section
+        id="screen-publications"
+        data-screen="publications"
+        hidden
+        aria-labelledby="pubTitle"
+      >
+        <div class="pubs-heading">
+          <h2 id="pubTitle">Recherche &amp; publications</h2>
+          <p>Une sélection d’articles académiques et de travaux de recherche auxquels j’ai contribué.</p>
+        </div>
+        <div class="pubs-shelf" role="region" aria-live="polite">
+          <div id="pubList" class="pubs-list" role="list"></div>
+        </div>
       </section>
     </main>
 
