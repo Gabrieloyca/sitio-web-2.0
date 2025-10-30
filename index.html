@@ -26,7 +26,7 @@
           <ul class="bullets">
             <li data-target="projects"><span class="hand-icon" aria-hidden="true"></span> Études de mobilité en France</li>
             <li data-target="publications"><span class="hand-icon" aria-hidden="true"></span> Recherche & publications</li>
-            <li><span class="hand-icon" aria-hidden="true"></span> Autres projets d’architecture (bientôt)</li>
+            <li data-target="architecture"><span class="hand-icon" aria-hidden="true"></span> Projets d’architecture &amp; plus</li>
           </ul>
         </div>
         <div class="photo-card" id="stamp">
@@ -89,7 +89,57 @@
           <div id="pubList" class="pubs-list" role="list"></div>
         </div>
       </section>
+
+      <section
+        id="screen-architecture"
+        data-screen="architecture"
+        hidden
+        aria-labelledby="archIntroTitle"
+      >
+        <div class="arch-floating" id="archIntro" role="complementary" aria-live="polite">
+          <h2 id="archIntroTitle">Projets d’architecture et plus :</h2>
+          <p>3 projets résidentiels, 1 projet de tiny house, 3 rénovations réalisés, 1 régularisation dans le cadre du petit studio masesmas.</p>
+          <p class="arch-floating__hint">Vous pouvez cliquer pour en savoir plus sur certains projets sur la carte.</p>
+        </div>
+        <article id="archDetail" class="arch-detail" hidden aria-live="polite">
+          <header class="arch-detail__header">
+            <h3 id="archDetailTitle"></h3>
+            <p id="archDetailTeam" class="arch-detail__team"></p>
+          </header>
+          <dl class="arch-detail__meta">
+            <div>
+              <dt>Architectes</dt>
+              <dd id="archDetailArchitects"></dd>
+            </div>
+            <div>
+              <dt>Collaborateurs</dt>
+              <dd id="archDetailCollaborators"></dd>
+            </div>
+            <div>
+              <dt>Calculs</dt>
+              <dd id="archDetailEngineering"></dd>
+            </div>
+            <div>
+              <dt>Électricité</dt>
+              <dd id="archDetailElectricity"></dd>
+            </div>
+            <div>
+              <dt>Plan d’eau</dt>
+              <dd id="archDetailWater"></dd>
+            </div>
+          </dl>
+          <div id="archGallery" class="arch-gallery" role="list"></div>
+        </article>
+      </section>
     </main>
+
+    <div id="lightbox" class="lightbox" hidden role="dialog" aria-modal="true" aria-labelledby="lightboxCaption">
+      <button type="button" class="lightbox__close" id="lightboxClose" aria-label="Fermer l’image agrandie">
+        <span aria-hidden="true">×</span>
+      </button>
+      <img id="lightboxImage" alt="" />
+      <p id="lightboxCaption"></p>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
