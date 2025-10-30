@@ -48,6 +48,71 @@
   const PROJECT_ZOOM = 6;
   const PUBLICATION_CENTER = [23, 4];
   const PUBLICATION_ZOOM = 3;
+  const DETAIL_FALLBACK_ZOOM = 9.2;
+
+  const ARCHITECTURE_CENTER = [-33.4, -70.8];
+  const ARCHITECTURE_ZOOM = 5.5;
+
+  const BOUNDARY_BASE_PATH = 'data/geojson/france/';
+  const PROJECT_BOUNDARIES = {
+    agen: 'AGEN.geojson',
+    amiens: 'AMIENS.geojson',
+    bourget: 'BOURGET-LE-LAC.geojson',
+    'grand-libournais': 'LIBOURNAIS.geojson',
+    provins: 'PROVINS.geojson',
+    rouen: 'ROUEN.geojson',
+    'saint-herblain': 'SAINT-HERBLAIN.geojson',
+    'saint-medard': 'SAINT-MEDARD-EN-JALLES.geojson',
+    'saint-sebastien': 'SAINT-SEBASTIEN-SUR-LOIRE.geojson',
+    talence: 'TALENCE.geojson',
+    veligo: 'IDF.geojson',
+    'ville-30': 'IDF.geojson',
+    vexin: 'VEXIN.geojson'
+  };
+
+  const boundaryCache = new Map();
+  let activeBoundaryLayer = null;
+
+  function escapeXml(str = '') {
+    return String(str).replace(/[&<>'"]/g, (char) => {
+      switch (char) {
+        case '&':
+          return '&amp;';
+        case '<':
+          return '&lt;';
+        case '>':
+          return '&gt;';
+        case '"':
+          return '&quot;';
+        case "'":
+          return '&#39;';
+        default:
+          return char;
+      }
+    });
+  }
+
+  function createPlaceholder(label, { colors = ['#0f172a', '#1e293b'], orientation = 'square' } = {}) {
+    const [width, height] = orientation === 'portrait' ? [900, 1280] : [960, 960];
+    const radius = orientation === 'portrait' ? 68 : 60;
+    const fontSize = orientation === 'portrait' ? 64 : 70;
+    const textY = height / 2 + fontSize / 3;
+    const safeLabel = escapeXml(label);
+    const gradientId = `grad-${Math.random().toString(36).slice(2)}`;
+    const svg = `
+      <svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'>
+        <defs>
+          <linearGradient id='${gradientId}' x1='0%' y1='0%' x2='100%' y2='100%'>
+            <stop offset='0%' stop-color='${colors[0]}' />
+            <stop offset='100%' stop-color='${colors[1]}' />
+          </linearGradient>
+        </defs>
+        <rect x='0' y='0' width='${width}' height='${height}' rx='${radius}' fill='url(#${gradientId})' />
+        <text x='50%' y='${textY}' font-family='Inter, Arial, sans-serif' font-size='${fontSize}' font-weight='600' text-anchor='middle' fill='rgba(255,255,255,0.92)'>${safeLabel}</text>
+      </svg>
+    `;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+  }
 
   const projects = [
     {
@@ -338,6 +403,297 @@
     }
   ];
 
+  const architectureProjects = [
+    {
+      id: 'casa-palta',
+      title: 'Casa Palta',
+      commune: 'Quillota',
+      summary: 'Projet résidentiel entouré de vergers',
+      coords: [-32.883, -71.247],
+      zoom: 13,
+      architects: ['Gabriel Oyarzun', 'Lucas Cerda'],
+      collaborators: ['Gustavo Atica'],
+      engineering: 'XX et XX',
+      electricity: 'XX',
+      water: 'XX',
+      photos: [
+        {
+          caption: 'Accès depuis les vergers',
+          square: createPlaceholder('Casa Palta', { colors: ['#0f172a', '#334155'] }),
+          portrait: createPlaceholder('Casa Palta', {
+            colors: ['#0f172a', '#1f2937'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Séjour intérieur',
+          square: createPlaceholder('Séjour', { colors: ['#7c3aed', '#312e81'] }),
+          portrait: createPlaceholder('Séjour', {
+            colors: ['#6d28d9', '#1f2937'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Patio en lumière',
+          square: createPlaceholder('Patio', { colors: ['#0f766e', '#0f172a'] }),
+          portrait: createPlaceholder('Patio', {
+            colors: ['#0f766e', '#1e293b'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Volume de nuit',
+          square: createPlaceholder('Nocturne', { colors: ['#f97316', '#9a3412'] }),
+          portrait: createPlaceholder('Nocturne', {
+            colors: ['#ea580c', '#0f172a'],
+            orientation: 'portrait'
+          })
+        }
+      ]
+    },
+    {
+      id: 'atelier-santiago',
+      title: 'Atelier Matta',
+      commune: 'Santiago Centro',
+      summary: 'Rénovation d’un espace de travail artistique',
+      coords: [-33.45, -70.666],
+      zoom: 14,
+      architects: ['Gabriel Oyarzun'],
+      collaborators: ['Collectif Matta'],
+      engineering: 'XX',
+      electricity: 'XX',
+      water: 'XX',
+      photos: [
+        {
+          caption: 'Atelier ouvert',
+          square: createPlaceholder('Atelier', { colors: ['#dc2626', '#7f1d1d'] }),
+          portrait: createPlaceholder('Atelier', {
+            colors: ['#991b1b', '#111827'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Espace d’exposition',
+          square: createPlaceholder('Expo', { colors: ['#2563eb', '#1e3a8a'] }),
+          portrait: createPlaceholder('Expo', {
+            colors: ['#1d4ed8', '#0f172a'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Détails matières',
+          square: createPlaceholder('Texture', { colors: ['#fb7185', '#be123c'] }),
+          portrait: createPlaceholder('Texture', {
+            colors: ['#f43f5e', '#7f1d1d'],
+            orientation: 'portrait'
+          })
+        }
+      ]
+    },
+    {
+      id: 'las-condes-panorama',
+      title: 'Panorama Andes',
+      commune: 'Las Condes',
+      summary: 'Penthouse panoramique',
+      coords: [-33.4105, -70.566],
+      zoom: 14,
+      architects: ['Gabriel Oyarzun'],
+      collaborators: ['Équipe locale'],
+      engineering: 'XX',
+      electricity: 'XX',
+      water: 'XX',
+      photos: [
+        {
+          caption: 'Salon sur la cordillère',
+          square: createPlaceholder('Cordillère', { colors: ['#0284c7', '#0f172a'] }),
+          portrait: createPlaceholder('Cordillère', {
+            colors: ['#0ea5e9', '#0f172a'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Terrasse végétalisée',
+          square: createPlaceholder('Terrasse', { colors: ['#22c55e', '#15803d'] }),
+          portrait: createPlaceholder('Terrasse', {
+            colors: ['#16a34a', '#0f172a'],
+            orientation: 'portrait'
+          })
+        }
+      ]
+    },
+    {
+      id: 'las-condes-masesmas',
+      title: 'Studio Masesmas',
+      commune: 'Las Condes',
+      summary: 'Régularisation du petit studio',
+      coords: [-33.425, -70.563],
+      zoom: 15,
+      architects: ['Gabriel Oyarzun'],
+      collaborators: ['Équipe masesmas'],
+      engineering: 'XX',
+      electricity: 'XX',
+      water: 'XX',
+      photos: [
+        {
+          caption: 'Micro-espace optimisé',
+          square: createPlaceholder('Studio', { colors: ['#facc15', '#ca8a04'] }),
+          portrait: createPlaceholder('Studio', {
+            colors: ['#f59e0b', '#92400e'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Cuisine compacte',
+          square: createPlaceholder('Cuisine', { colors: ['#f97316', '#c2410c'] }),
+          portrait: createPlaceholder('Cuisine', {
+            colors: ['#f97316', '#7c2d12'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Espace nuit',
+          square: createPlaceholder('Repos', { colors: ['#a855f7', '#6b21a8'] }),
+          portrait: createPlaceholder('Repos', {
+            colors: ['#9333ea', '#581c87'],
+            orientation: 'portrait'
+          })
+        }
+      ]
+    },
+    {
+      id: 'las-condes-tiny',
+      title: 'Tiny House El Encuentro',
+      commune: 'Las Condes',
+      summary: 'Micro-habitat expérimental',
+      coords: [-33.403, -70.552],
+      zoom: 15,
+      architects: ['Gabriel Oyarzun'],
+      collaborators: ['Laboratoire Habitat'],
+      engineering: 'XX',
+      electricity: 'XX',
+      water: 'XX',
+      photos: [
+        {
+          caption: 'Module compact',
+          square: createPlaceholder('Tiny', { colors: ['#38bdf8', '#0f172a'] }),
+          portrait: createPlaceholder('Tiny', {
+            colors: ['#0ea5e9', '#082f49'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Intérieur modulable',
+          square: createPlaceholder('Modulable', { colors: ['#14b8a6', '#0f172a'] }),
+          portrait: createPlaceholder('Modulable', {
+            colors: ['#0d9488', '#0f172a'],
+            orientation: 'portrait'
+          })
+        }
+      ]
+    },
+    {
+      id: 'lo-barnechea-casa',
+      title: 'Maison Quebrada',
+      commune: 'Lo Barnechea',
+      summary: 'Résidence sur la pente andine',
+      coords: [-33.356, -70.505],
+      zoom: 14,
+      architects: ['Gabriel Oyarzun'],
+      collaborators: ['Gustavo Atica'],
+      engineering: 'XX',
+      electricity: 'XX',
+      water: 'XX',
+      photos: [
+        {
+          caption: 'Structure suspendue',
+          square: createPlaceholder('Structure', { colors: ['#0ea5e9', '#1d4ed8'] }),
+          portrait: createPlaceholder('Structure', {
+            colors: ['#2563eb', '#1e3a8a'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Espaces extérieurs',
+          square: createPlaceholder('Extérieurs', { colors: ['#f472b6', '#db2777'] }),
+          portrait: createPlaceholder('Extérieurs', {
+            colors: ['#ec4899', '#831843'],
+            orientation: 'portrait'
+          })
+        }
+      ]
+    },
+    {
+      id: 'estacion-central-hub',
+      title: 'Hub créatif Estación Central',
+      commune: 'Estación Central',
+      summary: 'Réhabilitation d’un ancien entrepôt',
+      coords: [-33.456, -70.704],
+      zoom: 14,
+      architects: ['Gabriel Oyarzun'],
+      collaborators: ['Collectif Urbain'],
+      engineering: 'XX',
+      electricity: 'XX',
+      water: 'XX',
+      photos: [
+        {
+          caption: 'Façade récupérée',
+          square: createPlaceholder('Façade', { colors: ['#f59e0b', '#b45309'] }),
+          portrait: createPlaceholder('Façade', {
+            colors: ['#d97706', '#92400e'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Cour partagée',
+          square: createPlaceholder('Cour', { colors: ['#65a30d', '#166534'] }),
+          portrait: createPlaceholder('Cour', {
+            colors: ['#84cc16', '#14532d'],
+            orientation: 'portrait'
+          })
+        }
+      ]
+    },
+    {
+      id: 'pucon-lodge',
+      title: 'Lodge Pucon',
+      commune: 'Pucón',
+      summary: 'Retraite au bord du lac Villarrica',
+      coords: [-39.28, -71.96],
+      zoom: 13,
+      architects: ['Gabriel Oyarzun'],
+      collaborators: ['Atelier Sud'],
+      engineering: 'XX',
+      electricity: 'XX',
+      water: 'XX',
+      photos: [
+        {
+          caption: 'Vue sur le lac',
+          square: createPlaceholder('Lac', { colors: ['#0ea5e9', '#312e81'] }),
+          portrait: createPlaceholder('Lac', {
+            colors: ['#1d4ed8', '#1e3a8a'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Salon au coin du feu',
+          square: createPlaceholder('Cheminée', { colors: ['#ef4444', '#7f1d1d'] }),
+          portrait: createPlaceholder('Cheminée', {
+            colors: ['#b91c1c', '#450a0a'],
+            orientation: 'portrait'
+          })
+        },
+        {
+          caption: 'Galerie extérieure',
+          square: createPlaceholder('Galerie', { colors: ['#0f766e', '#0f172a'] }),
+          portrait: createPlaceholder('Galerie', {
+            colors: ['#0f766e', '#0b1120'],
+            orientation: 'portrait'
+          })
+        }
+      ]
+    }
+  ];
+
   const cluster = L.markerClusterGroup({
     showCoverageOnHover: false,
     spiderfyOnMaxZoom: true,
@@ -359,6 +715,27 @@
         iconAnchor: [23, 23]
       });
     }
+  });
+
+  const architectureLayer = L.layerGroup();
+  let architectureRevealTimeout = null;
+  let architecturePhotoTimers = [];
+
+  function buildArchitecturePinSvg() {
+    return `
+      <svg viewBox="0 0 36 50" xmlns="http://www.w3.org/2000/svg" role="presentation">
+        <path d="M18 49C15 45.2 3 30.6 3 19A15 15 0 0 1 18 4a15 15 0 0 1 15 15c0 11.6-12 26.2-15 30z" fill="#0b1120" />
+        <path d="M18 42.5c-2.6-3.1-11.2-14-11.2-23.4A11.2 11.2 0 0 1 18 7.9a11.2 11.2 0 0 1 11.2 11.2c0 9.4-8.6 20.3-11.2 23.4z" fill="#1f2937" />
+        <circle cx="18" cy="19.5" r="5.8" fill="#f8fafc" opacity="0.2" />
+      </svg>
+    `.trim();
+  }
+
+  const architectureIcon = L.icon({
+    iconUrl: svgToDataUrl(buildArchitecturePinSvg()),
+    iconSize: [36, 50],
+    iconAnchor: [18, 48],
+    popupAnchor: [0, -26]
   });
 
   function buildPinSvg(role) {
@@ -609,6 +986,76 @@
     }
   }
 
+  function clearBoundaryLayer() {
+    if (activeBoundaryLayer) {
+      map.removeLayer(activeBoundaryLayer);
+      activeBoundaryLayer = null;
+    }
+  }
+
+  async function loadBoundaryLayer(fileName) {
+    if (!fileName) {
+      return null;
+    }
+    if (boundaryCache.has(fileName)) {
+      return boundaryCache.get(fileName);
+    }
+    try {
+      const response = await fetch(`${BOUNDARY_BASE_PATH}${fileName}`);
+      if (!response.ok) {
+        boundaryCache.set(fileName, null);
+        return null;
+      }
+      const data = await response.json();
+      boundaryCache.set(fileName, data);
+      return data;
+    } catch (error) {
+      boundaryCache.set(fileName, null);
+      return null;
+    }
+  }
+
+  async function focusProjectArea(project) {
+    if (!project) {
+      return;
+    }
+
+    const boundaryFile = PROJECT_BOUNDARIES[project.id];
+    let bounds = null;
+
+    if (boundaryFile) {
+      const data = await loadBoundaryLayer(boundaryFile);
+      if (data) {
+        clearBoundaryLayer();
+        activeBoundaryLayer = L.geoJSON(data, {
+          style() {
+            return {
+              color: '#111827',
+              weight: 2.4,
+              opacity: 0.85,
+              fillOpacity: 0
+            };
+          }
+        });
+        activeBoundaryLayer.addTo(map);
+        bounds = activeBoundaryLayer.getBounds();
+      }
+    }
+
+    if (!bounds) {
+      clearBoundaryLayer();
+    }
+
+    if (bounds && bounds.isValid()) {
+      map.flyToBounds(bounds, { padding: [60, 60], duration: 1.6, easeLinearity: 0.25 });
+    } else if (Array.isArray(project.coords)) {
+      map.flyTo(project.coords, project.detailZoom || DETAIL_FALLBACK_ZOOM, {
+        duration: 1.6,
+        easeLinearity: 0.25
+      });
+    }
+  }
+
   function refreshProjectMarkers() {
     cluster.clearLayers();
     projects.forEach((project) => {
@@ -622,6 +1069,7 @@
         if (evt && evt.originalEvent) {
           evt.originalEvent.stopPropagation();
         }
+        focusProjectArea(project);
         openProjectPanel(project);
         requestAnimationFrame(() => {
           suppressMapClose = false;
@@ -639,6 +1087,168 @@
     if (map.hasLayer(cluster)) {
       map.removeLayer(cluster);
     }
+    clearBoundaryLayer();
+  }
+
+  function clearArchitectureTimers() {
+    clearTimeout(architectureRevealTimeout);
+    architectureRevealTimeout = null;
+    architecturePhotoTimers.forEach((timeoutId) => clearTimeout(timeoutId));
+    architecturePhotoTimers = [];
+  }
+
+  function hideArchitectureDetail() {
+    clearArchitectureTimers();
+    if (archDetailElement) {
+      archDetailElement.classList.remove('is-visible');
+      archDetailElement.hidden = true;
+    }
+    if (archGallery) {
+      archGallery.innerHTML = '';
+    }
+  }
+
+  function showArchitectureIntro() {
+    if (archIntroElement) {
+      archIntroElement.hidden = false;
+      archIntroElement.style.opacity = '1';
+      archIntroElement.style.transform = 'translateY(0)';
+    }
+  }
+
+  function hideArchitectureIntro() {
+    if (archIntroElement) {
+      archIntroElement.hidden = true;
+    }
+  }
+
+  function populateArchitectureDetail(project) {
+    if (!archDetailElement || !project) {
+      return;
+    }
+
+    archTitle.textContent = project.title;
+    archTeam.textContent = `${project.commune} · ${project.summary}`;
+    archArchitects.textContent = (project.architects || []).join(', ') || '—';
+    archCollaborators.textContent = (project.collaborators || []).join(', ') || '—';
+    archEngineering.textContent = project.engineering || '—';
+    archElectricity.textContent = project.electricity || '—';
+    archWater.textContent = project.water || '—';
+
+    if (archGallery) {
+      archGallery.innerHTML = '';
+      (project.photos || []).forEach((photo, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'arch-gallery__item';
+        button.setAttribute('role', 'listitem');
+        button.dataset.caption = photo.caption || '';
+        button.setAttribute('aria-label', photo.caption || 'Voir la photo du projet');
+        button.style.backgroundImage = `url('${photo.square}')`;
+        button.addEventListener('click', () => {
+          openLightbox(photo);
+        });
+        archGallery.appendChild(button);
+        const timer = setTimeout(() => {
+          button.classList.add('is-visible');
+        }, 400 + index * 420);
+        architecturePhotoTimers.push(timer);
+      });
+    }
+  }
+
+  function renderArchitectureDetail(project) {
+    populateArchitectureDetail(project);
+    if (archDetailElement) {
+      archDetailElement.hidden = false;
+      requestAnimationFrame(() => {
+        archDetailElement.classList.add('is-visible');
+      });
+    }
+  }
+
+  function ensureArchitectureMarkers() {
+    if (!map.hasLayer(architectureLayer)) {
+      map.addLayer(architectureLayer);
+    }
+    if (architectureLayer.getLayers().length > 0) {
+      return;
+    }
+    architectureProjects.forEach((project) => {
+      const marker = L.marker(project.coords, {
+        icon: architectureIcon,
+        title: project.title
+      });
+      marker.on('click', (evt) => {
+        suppressMapClose = true;
+        if (evt && evt.originalEvent) {
+          evt.originalEvent.stopPropagation();
+        }
+        focusArchitectureProject(project);
+        requestAnimationFrame(() => {
+          suppressMapClose = false;
+        });
+      });
+      architectureLayer.addLayer(marker);
+    });
+  }
+
+  function removeArchitectureMarkers() {
+    if (map.hasLayer(architectureLayer)) {
+      map.removeLayer(architectureLayer);
+    }
+    hideArchitectureDetail();
+  }
+
+  function focusArchitectureProject(project) {
+    if (!project) {
+      return;
+    }
+    clearArchitectureTimers();
+    hideArchitectureDetail();
+
+    const zoom = project.zoom || 13;
+    map.flyTo(project.coords, zoom, { duration: 1.8, easeLinearity: 0.25 });
+
+    map.once('moveend', () => {
+      architectureRevealTimeout = setTimeout(() => {
+        renderArchitectureDetail(project);
+      }, 1000);
+    });
+  }
+
+  function openLightbox(photo) {
+    if (!lightboxElement || !lightboxImage || !photo) {
+      return;
+    }
+    lightboxImage.src = photo.portrait || photo.square || '';
+    lightboxImage.alt = photo.caption || '';
+    if (lightboxCaption) {
+      lightboxCaption.textContent = photo.caption || '';
+    }
+    lightboxElement.hidden = false;
+    requestAnimationFrame(() => {
+      lightboxElement.classList.add('is-visible');
+      if (lightboxClose) {
+        lightboxClose.focus();
+      }
+    });
+  }
+
+  function closeLightbox() {
+    if (!lightboxElement) {
+      return;
+    }
+    lightboxElement.classList.remove('is-visible');
+    setTimeout(() => {
+      lightboxElement.hidden = true;
+      if (lightboxImage) {
+        lightboxImage.src = '';
+      }
+      if (lightboxCaption) {
+        lightboxCaption.textContent = '';
+      }
+    }, 200);
   }
 
   const sections = Array.from(document.querySelectorAll('[data-screen]')).reduce((acc, section) => {
@@ -650,6 +1260,7 @@
     { id: 'home', label: 'Accueil', screen: 'home', icon: 'home' },
     { id: 'projects', label: 'Études en France', screen: 'projects' },
     { id: 'publications', label: 'Publications', screen: 'publications' },
+    { id: 'architecture', label: 'Architecture', screen: 'architecture' },
     { id: 'contact', label: 'Contact', href: 'mailto:gabriel.oyarzun@studio-territoires.fr' }
   ];
 
@@ -704,15 +1315,25 @@
       toPublications();
     } else if (id === 'home') {
       toHome();
+    } else if (id === 'architecture') {
+      toArchitecture();
     }
 
     if (id !== 'projects') {
       hideProjectIntro();
     }
+    if (id !== 'architecture') {
+      hideArchitectureDetail();
+    }
   }
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
+      if (lightboxElement && !lightboxElement.hidden) {
+        event.preventDefault();
+        closeLightbox();
+        return;
+      }
       activateScreen('home');
     }
   });
@@ -739,6 +1360,20 @@
   const panelType = document.getElementById('ppType');
   const panelSkills = document.getElementById('ppSkills');
   const panelDescription = document.getElementById('ppDesc');
+  const archDetailElement = document.getElementById('archDetail');
+  const archIntroElement = document.getElementById('archIntro');
+  const archTitle = document.getElementById('archDetailTitle');
+  const archTeam = document.getElementById('archDetailTeam');
+  const archArchitects = document.getElementById('archDetailArchitects');
+  const archCollaborators = document.getElementById('archDetailCollaborators');
+  const archEngineering = document.getElementById('archDetailEngineering');
+  const archElectricity = document.getElementById('archDetailElectricity');
+  const archWater = document.getElementById('archDetailWater');
+  const archGallery = document.getElementById('archGallery');
+  const lightboxElement = document.getElementById('lightbox');
+  const lightboxImage = document.getElementById('lightboxImage');
+  const lightboxCaption = document.getElementById('lightboxCaption');
+  const lightboxClose = document.getElementById('lightboxClose');
 
   function openProjectPanel(project) {
     panelTitle.textContent = project.title;
@@ -778,6 +1413,18 @@
 
   const photoCard = document.getElementById('stamp');
   const heroBox = document.getElementById('heroBox');
+
+  if (lightboxClose) {
+    lightboxClose.addEventListener('click', closeLightbox);
+  }
+
+  if (lightboxElement) {
+    lightboxElement.addEventListener('click', (event) => {
+      if (event.target === lightboxElement) {
+        closeLightbox();
+      }
+    });
+  }
   const motion = { speed: 6, jitter: 0.08, bounce: 0.95, margin: 12 };
   let sx = 0;
   let sy = 0;
@@ -891,23 +1538,35 @@
   function toHome() {
     map.setView(HOME_CENTER, HOME_ZOOM);
     removeProjectMarkers();
+    removeArchitectureMarkers();
     closeProjectPanel({ resetIntro: false });
     hideProjectIntro();
+    hideArchitectureDetail();
+    hideArchitectureIntro();
+    closeLightbox();
     startPhotoCard();
   }
 
   function toProjects() {
     map.flyTo(PROJECT_CENTER, PROJECT_ZOOM, { duration: 2, easeLinearity: 0.2 });
     refreshProjectMarkers();
+    removeArchitectureMarkers();
     closeProjectPanel();
     showProjectIntro();
+    hideArchitectureDetail();
+    hideArchitectureIntro();
+    closeLightbox();
     stopPhotoCard();
   }
 
   function toPublications() {
     removeProjectMarkers();
+    removeArchitectureMarkers();
     closeProjectPanel({ resetIntro: false });
     hideProjectIntro();
+    hideArchitectureDetail();
+    hideArchitectureIntro();
+    closeLightbox();
     stopPhotoCard();
     if (pubList) {
       pubList.scrollTop = 0;
@@ -915,11 +1574,28 @@
     map.flyTo(PUBLICATION_CENTER, PUBLICATION_ZOOM, { duration: 2.2, easeLinearity: 0.2 });
   }
 
+  function toArchitecture() {
+    removeProjectMarkers();
+    closeProjectPanel({ resetIntro: false });
+    hideProjectIntro();
+    stopPhotoCard();
+    closeLightbox();
+    showArchitectureIntro();
+    hideArchitectureDetail();
+    ensureArchitectureMarkers();
+    map.flyTo(ARCHITECTURE_CENTER, ARCHITECTURE_ZOOM, { duration: 2.2, easeLinearity: 0.22 });
+  }
+
   map.on('click', () => {
-    if (activeScreen !== 'projects' || panelElement.hidden || suppressMapClose) {
+    if (suppressMapClose) {
       return;
     }
-    closeProjectPanel();
+    if (activeScreen === 'projects' && panelElement && !panelElement.hidden) {
+      closeProjectPanel();
+    }
+    if (activeScreen === 'architecture' && archDetailElement && !archDetailElement.hidden) {
+      hideArchitectureDetail();
+    }
   });
 
   cluster.on('clusterclick', (evt) => {
@@ -935,6 +1611,7 @@
   function init() {
     hydrateThemeAssets();
     map.setView(HOME_CENTER, HOME_ZOOM);
+    hideArchitectureIntro();
     activateScreen('home');
   }
 
