@@ -3,8 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Gabriel Oyarzun – Accueil</title>
-    <!-- Fuentes y hojas de estilo base -->
+    <title>Études de mobilité en France – Gabriel Oyarzun</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -35,7 +34,6 @@
           aria-expanded="false"
           aria-controls="navPanel"
         >
-          <!-- Ícono casa accesible -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
             <path
               fill="none"
@@ -57,8 +55,9 @@
         aria-hidden="true"
         aria-label="Navigation mobile"
       >
-        <h2 class="nav-panel__title">Accueil</h2>
+        <h2 class="nav-panel__title">Menu</h2>
         <ul class="nav-panel__list">
+          <li><a class="nav-panel__link" href="index.html">Accueil</a></li>
           <li><a class="nav-panel__link" href="etudes.html">Études de mobilité</a></li>
           <li><a class="nav-panel__link" href="publications.html">Recherche &amp; publications</a></li>
           <li><a class="nav-panel__link" href="architecture.html">Projets d’architecture</a></li>
@@ -66,24 +65,41 @@
         </ul>
       </aside>
 
-      <section class="home-overlay safe-bottom" aria-labelledby="homeOverlayTitle">
-        <h1 id="homeOverlayTitle" class="home-overlay__title">En savoir plus</h1>
-        <p>Explorez les cartes thématiques pour découvrir les projets et publications clés.</p>
-        <div class="home-chips" role="list">
-          <a class="home-chip" role="listitem" href="etudes.html">Mobilité</a>
-          <a class="home-chip" role="listitem" href="publications.html">Recherche</a>
-          <a class="home-chip" role="listitem" href="architecture.html">Architecture</a>
-          <a class="home-chip" role="listitem" href="contact.html">Contact</a>
-        </div>
+      <section
+        class="home-overlay safe-top"
+        style="max-width: 360px; top: max(16px, env(safe-area-inset-top)); bottom: auto;"
+        aria-labelledby="projectsTitle"
+      >
+        <h1 id="projectsTitle" class="home-overlay__title">Études de mobilité</h1>
+        <p><strong><span id="statChef">0</span></strong> missions en tant que chef de projet.</p>
+        <p><strong><span id="statCharge">0</span></strong> missions en tant que chargé d’études.</p>
+        <p>Chaque point ouvre une fiche détaillée après recentrage de la carte.</p>
       </section>
+
+      <article id="projectSheet" class="sheet" hidden aria-live="polite" aria-labelledby="ppTitle">
+        <header class="sheet__header">
+          <div>
+            <h2 id="ppTitle" class="sheet__title"></h2>
+            <p id="ppYear" aria-label="Année du projet"></p>
+          </div>
+          <button type="button" class="sheet__close" data-sheet-close aria-label="Fermer la fiche">
+            <span aria-hidden="true">×</span>
+          </button>
+        </header>
+        <div class="sheet__body">
+          <p><strong>Client :</strong> <span id="ppClient"></span></p>
+          <p><strong>Partenaire :</strong> <span id="ppPartner"></span></p>
+          <p><strong>Rôle :</strong> <span id="ppRole"></span></p>
+          <p id="ppDesc"></p>
+        </div>
+      </article>
     </div>
 
-    <!-- Librerías y scripts comunes -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1j7kGStp1aE2l9I4hYJbPEw24kTx5cRQvM2EjQ64=" crossorigin></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/map-common.js"></script>
     <script src="assets/js/nav.js"></script>
-    <script src="assets/js/home.js"></script>
+    <script src="assets/js/etudes.js"></script>
   </body>
 </html>
