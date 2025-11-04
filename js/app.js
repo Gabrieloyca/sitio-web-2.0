@@ -2,6 +2,49 @@
 (function () {
   'use strict';
 
+  const CONFIG = window.APP_CONFIG || {};
+  const PIN_CONFIG = CONFIG.PIN || {};
+  const COLOR_CONFIG = CONFIG.COLORS || {};
+  const ANIM_CONFIG = CONFIG.ANIM || {};
+  const ZOOM_CONFIG = CONFIG.ZOOMS || {};
+  const CENTER_CONFIG = CONFIG.CENTER || {};
+
+  const FLY_DURATION = typeof ANIM_CONFIG.flyToDuration === 'number' ? ANIM_CONFIG.flyToDuration : 0.8;
+  const SHEET_DELAY = typeof ANIM_CONFIG.sheetDelay === 'number' ? ANIM_CONFIG.sheetDelay : 1000;
+
+  function syncDesignTokens() {
+    const root = document.documentElement;
+    if (!root || !root.style) {
+      return;
+    }
+    const style = root.style;
+    const setPx = (name, value) => {
+      if (typeof value === 'number') {
+        style.setProperty(name, `${value}px`);
+      }
+    };
+    setPx('--pin-chef-d', PIN_CONFIG.chef && PIN_CONFIG.chef.diameter);
+    setPx('--pin-chef-b', PIN_CONFIG.chef && PIN_CONFIG.chef.border);
+    setPx('--pin-charge-d', PIN_CONFIG.charge && PIN_CONFIG.charge.diameter);
+    setPx('--pin-charge-b', PIN_CONFIG.charge && PIN_CONFIG.charge.border);
+    setPx('--cluster-d', PIN_CONFIG.cluster && PIN_CONFIG.cluster.diameter);
+    setPx('--cluster-b', PIN_CONFIG.cluster && PIN_CONFIG.cluster.border);
+    if (PIN_CONFIG.cluster && typeof PIN_CONFIG.cluster.fontSize === 'number') {
+      style.setProperty('--cluster-font', `${PIN_CONFIG.cluster.fontSize}px`);
+    }
+    if (PIN_CONFIG.cluster && typeof PIN_CONFIG.cluster.fontWeight !== 'undefined') {
+      style.setProperty('--cluster-weight', String(PIN_CONFIG.cluster.fontWeight));
+    }
+    if (COLOR_CONFIG.stroke) {
+      style.setProperty('--color-stroke', COLOR_CONFIG.stroke);
+    }
+    if (COLOR_CONFIG.fill) {
+      style.setProperty('--color-fill', COLOR_CONFIG.fill);
+    }
+  }
+
+  syncDesignTokens();
+
   const HAND_FALLBACK = `url("data:image/svg+xml;utf8,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128' shape-rendering='crispEdges'><path fill='%23111' d='M44 12h16v44H44zM60 24h16v48H60zM76 36h16v52H76zM28 40h16v76H28zM12 60h16v56H12z'/></svg>")}")`;
   const PORTRAIT_FALLBACK = `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAABCAYAAAAp8mGQAAAACXBIWXMAAAsSAAALEgHS3X78AAABa0lEQVR4nO2Ty0scURTHf4l8m1x3R4ZpZpJm0hYVQkqC7E7g6cG8i4bW0QW4H9bTWeWlS6m1W3qQm2pQGgE0iOtiB6Q6FQmFxG3P3j7c8c8gZb9l6H1zv1z9v+8c9wqk2m1q1r8d4s2k7eS6Wn8Qwz7M2VgU8bYy8n9lC1P5B0KpYx/7y8m3p1O3YqZ1H1o1Y3b3s8rXwq4Qk5P9+dnI9b7cO3zQkQXq9YkF8M0vG3Fovh3vQpG8Xx9yH0lAr+oQ4YbV8cL3ZrR4Vf1o9j9z1bX3G9pQ6J4ZpB1W4vG1Qij0Uo0dM7Q6Wj2X7oJp0mCw2oJr0kIhTUZ0wE0lCwU0yWJ6YlQn8W9wq0W6u2G6m3U4g4d8J2C+5x1YxV8eR3r1hH2p6b0aJd0nOe9w1sQYl5x9m8v3p5pB6c8S9mQJ+7K1qkF5i8S1w5pX4r8q+6D3/9k9u3w8P6j6v+zV3YtHjP5jY5vYF0iG6iH3s5H1k0iGx9Y8dA0uVyc1J5pQAAAABJRU5ErkJggg==")`;
 
@@ -32,6 +75,8 @@
     }
   }
 
+  const mapContainer = document.getElementById('map');
+
   const map = L.map('map', { zoomControl: false });
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
     opacity: 0.96,
@@ -41,17 +86,74 @@
     opacity: 0.4
   }).addTo(map);
   L.control.zoom({ position: 'bottomright' }).addTo(map);
+  map.scrollWheelZoom.disable();
+
+  function scheduleMapInvalidate(delay = 0) {
+    const run = () => requestAnimationFrame(() => map.invalidateSize());
+    if (delay > 0) {
+      setTimeout(run, delay);
+    } else {
+      run();
+    }
+  }
+
+  const handleResize = () => scheduleMapInvalidate();
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('orientationchange', handleResize);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      scheduleMapInvalidate();
+    }
+  });
+
+  let wheelMode = 'disabled';
+
+  function enableWheelOnHover() {
+    if (wheelMode === 'hover') {
+      map.scrollWheelZoom.enable();
+    }
+  }
+
+  function disableWheelOnLeave() {
+    if (wheelMode === 'hover') {
+      map.scrollWheelZoom.disable();
+    }
+  }
+
+  function setWheelMode(mode) {
+    if (wheelMode === mode) {
+      return;
+    }
+    if (mapContainer) {
+      mapContainer.removeEventListener('mouseenter', enableWheelOnHover);
+      mapContainer.removeEventListener('mouseleave', disableWheelOnLeave);
+    }
+    wheelMode = mode;
+    if (mode === 'enabled') {
+      map.scrollWheelZoom.enable();
+    } else if (mode === 'hover') {
+      map.scrollWheelZoom.disable();
+      if (mapContainer) {
+        mapContainer.addEventListener('mouseenter', enableWheelOnHover);
+        mapContainer.addEventListener('mouseleave', disableWheelOnLeave);
+      }
+    } else {
+      map.scrollWheelZoom.disable();
+    }
+  }
 
   const HOME_CENTER = [47.1, 2.6];
   const HOME_ZOOM = 5.4;
   const PROJECT_CENTER = [46.6, 2.6];
-  const PROJECT_ZOOM = 6;
+  const PROJECT_ZOOM = typeof ZOOM_CONFIG.mobilite === 'number' ? ZOOM_CONFIG.mobilite : 6;
   const PUBLICATION_CENTER = [23, 4];
   const PUBLICATION_ZOOM = 3;
   const DETAIL_FALLBACK_ZOOM = 9.2;
 
   const ARCHITECTURE_CENTER = [-33.4, -70.8];
-  const ARCHITECTURE_ZOOM = 5.5;
+  const ARCHITECTURE_ZOOM = typeof ZOOM_CONFIG.architecture === 'number' ? ZOOM_CONFIG.architecture : 5.5;
+  const CONTACT_CENTER = Array.isArray(CENTER_CONFIG.contact) ? CENTER_CONFIG.contact : [48.8226, 2.4747];
+  const CONTACT_ZOOM = typeof ZOOM_CONFIG.contact === 'number' ? ZOOM_CONFIG.contact : 14;
 
   const BOUNDARY_BASE_PATH = 'data/geojson/france/';
   const PROJECT_BOUNDARIES = {
@@ -694,25 +796,21 @@
     }
   ];
 
+  const clusterSize = pinSizeFor('cluster');
+  const clusterDiameter = clusterSize.diameter || 36;
+
   const cluster = L.markerClusterGroup({
     showCoverageOnHover: false,
     spiderfyOnMaxZoom: true,
     zoomToBoundsOnClick: true,
-    maxClusterRadius: 44,
+    maxClusterRadius: Math.max(40, clusterDiameter * 1.4),
     iconCreateFunction(clusterGroup) {
       const count = clusterGroup.getChildCount();
-      let sizeClass = 'cluster--small';
-      if (count >= 10 && count < 20) {
-        sizeClass = 'cluster--medium';
-      } else if (count >= 20) {
-        sizeClass = 'cluster--large';
-      }
-
       return L.divIcon({
-        html: `<span>${count}</span>`,
-        className: `cluster ${sizeClass}`,
-        iconSize: [46, 46],
-        iconAnchor: [23, 23]
+        html: `<span class="map-cluster__count">${count}</span>`,
+        className: 'map-cluster',
+        iconSize: [clusterDiameter, clusterDiameter],
+        iconAnchor: [clusterDiameter / 2, clusterDiameter / 2]
       });
     }
   });
@@ -721,71 +819,34 @@
   let architectureRevealTimeout = null;
   let architecturePhotoTimers = [];
 
-  function buildArchitecturePinSvg() {
-    return `
-      <svg viewBox="0 0 36 50" xmlns="http://www.w3.org/2000/svg" role="presentation">
-        <path d="M18 49C15 45.2 3 30.6 3 19A15 15 0 0 1 18 4a15 15 0 0 1 15 15c0 11.6-12 26.2-15 30z" fill="#0b1120" />
-        <path d="M18 42.5c-2.6-3.1-11.2-14-11.2-23.4A11.2 11.2 0 0 1 18 7.9a11.2 11.2 0 0 1 11.2 11.2c0 9.4-8.6 20.3-11.2 23.4z" fill="#1f2937" />
-        <circle cx="18" cy="19.5" r="5.8" fill="#f8fafc" opacity="0.2" />
-      </svg>
-    `.trim();
+  function pinSizeFor(role) {
+    const config = PIN_CONFIG[role] || PIN_CONFIG.charge || { diameter: 22, border: 3 };
+    return {
+      diameter: typeof config.diameter === 'number' ? config.diameter : 22,
+      border: typeof config.border === 'number' ? config.border : 3
+    };
   }
 
-  const architectureIcon = L.icon({
-    iconUrl: svgToDataUrl(buildArchitecturePinSvg()),
-    iconSize: [36, 50],
-    iconAnchor: [18, 48],
-    popupAnchor: [0, -26]
-  });
-
-  function buildPinSvg(role) {
-    if (role === 'chef') {
-      return `
-        <svg viewBox="0 0 40 54" xmlns="http://www.w3.org/2000/svg" role="presentation">
-          <defs>
-            <radialGradient id="chefGlow" cx="50%" cy="35%" r="60%">
-              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28" />
-              <stop offset="100%" stop-color="#111827" stop-opacity="0" />
-            </radialGradient>
-          </defs>
-          <path fill="#0b1120" d="M20 53c-3.6-4.1-18-19.3-18-33.2C2 8.89 9.61 1 20 1s18 7.89 18 18.8C38 33.7 23.6 48.9 20 53z" />
-          <path fill="#111827" d="M20 48.2c-3.1-3.6-15.6-17-15.6-28.4C4.4 9.96 11.32 4 20 4s15.6 5.96 15.6 15.8C35.6 31.2 23.1 44.6 20 48.2z" />
-          <circle cx="20" cy="19.6" r="7.6" fill="#1f2937" />
-          <circle cx="20" cy="19.6" r="4.8" fill="#f3f4f6" opacity="0.18" />
-          <ellipse cx="20" cy="46" rx="6.5" ry="2.2" fill="url(#chefGlow)" />
-        </svg>
-      `.trim();
+  function createPinDivIcon(role) {
+    const size = pinSizeFor(role);
+    const diameter = size.diameter;
+    const classList = ['map-pin', `map-pin--${role}`];
+    if (role !== 'chef' && role !== 'charge') {
+      classList.push('map-pin--architecture');
     }
-
-    return `
-      <svg viewBox="0 0 34 46" xmlns="http://www.w3.org/2000/svg" role="presentation">
-        <path fill="#64748b" d="M17 45c-3-3.5-15-16.3-15-27.6C2 8.66 8.82 2 17 2s15 6.66 15 15.4C32 28.7 20 41.5 17 45z" />
-        <path fill="#94a3b8" d="M17 40.8c-2.6-3-12.2-13.8-12.2-22.8C4.8 10.37 10.1 6 17 6s12.2 4.37 12.2 12c0 9-9.6 19.8-12.2 22.8z" />
-        <circle cx="17" cy="18" r="6.2" fill="#e2e8f0" opacity="0.75" />
-      </svg>
-    `.trim();
-  }
-
-  function svgToDataUrl(svgMarkup) {
-    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgMarkup)}`;
-  }
-
-  function createPinIcon(role) {
-    const isChef = role === 'chef';
-    const size = isChef ? [40, 54] : [34, 46];
-    const svgMarkup = buildPinSvg(role);
-    return L.icon({
-      className: `project-pin project-pin--${role}`,
-      iconUrl: svgToDataUrl(svgMarkup),
-      iconSize: size,
-      iconAnchor: [size[0] / 2, size[1]],
-      popupAnchor: [0, -size[1] + 16]
+    return L.divIcon({
+      html: `<span class="${classList.join(' ')}" aria-hidden="true"></span>`,
+      className: 'map-pin-wrapper',
+      iconSize: [diameter, diameter],
+      iconAnchor: [diameter / 2, diameter / 2],
+      popupAnchor: [0, -diameter / 2]
     });
   }
 
   const pinIcons = {
-    chef: createPinIcon('chef'),
-    charge: createPinIcon('charge')
+    chef: createPinDivIcon('chef'),
+    charge: createPinDivIcon('charge'),
+    architecture: createPinDivIcon('architecture')
   };
 
   const projectStats = projects.reduce(
@@ -993,6 +1054,27 @@
     }
   }
 
+  function waitForMapSettled() {
+    return new Promise((resolve) => {
+      let resolved = false;
+      const complete = () => {
+        if (!resolved) {
+          resolved = true;
+          resolve();
+        }
+      };
+      const timer = setTimeout(() => {
+        map.off('moveend', handleMoveEnd);
+        complete();
+      }, SHEET_DELAY);
+      function handleMoveEnd() {
+        clearTimeout(timer);
+        complete();
+      }
+      map.once('moveend', handleMoveEnd);
+    });
+  }
+
   async function loadBoundaryLayer(fileName) {
     if (!fileName) {
       return null;
@@ -1047,12 +1129,16 @@
     }
 
     if (bounds && bounds.isValid()) {
-      map.flyToBounds(bounds, { padding: [60, 60], duration: 1.6, easeLinearity: 0.25 });
+      const waitForMove = waitForMapSettled();
+      map.flyToBounds(bounds, { padding: [60, 60], duration: FLY_DURATION, easeLinearity: 0.25 });
+      await waitForMove;
     } else if (Array.isArray(project.coords)) {
+      const waitForMove = waitForMapSettled();
       map.flyTo(project.coords, project.detailZoom || DETAIL_FALLBACK_ZOOM, {
-        duration: 1.6,
+        duration: FLY_DURATION,
         easeLinearity: 0.25
       });
+      await waitForMove;
     }
   }
 
@@ -1069,11 +1155,17 @@
         if (evt && evt.originalEvent) {
           evt.originalEvent.stopPropagation();
         }
-        focusProjectArea(project);
-        openProjectPanel(project);
-        requestAnimationFrame(() => {
-          suppressMapClose = false;
-        });
+        focusProjectArea(project)
+          .catch(() => {})
+          .then(() => {
+            openProjectPanel(project);
+            scheduleMapInvalidate(160);
+          })
+          .finally(() => {
+            requestAnimationFrame(() => {
+              suppressMapClose = false;
+            });
+          });
       });
       marker.bindPopup(createProjectPopup(project), { className: 'project-popup' });
       cluster.addLayer(marker);
@@ -1106,6 +1198,7 @@
     if (archGallery) {
       archGallery.innerHTML = '';
     }
+    scheduleMapInvalidate(160);
   }
 
   function showArchitectureIntro() {
@@ -1163,6 +1256,7 @@
       archDetailElement.hidden = false;
       requestAnimationFrame(() => {
         archDetailElement.classList.add('is-visible');
+        scheduleMapInvalidate(160);
       });
     }
   }
@@ -1176,7 +1270,7 @@
     }
     architectureProjects.forEach((project) => {
       const marker = L.marker(project.coords, {
-        icon: architectureIcon,
+        icon: pinIcons.architecture,
         title: project.title
       });
       marker.on('click', (evt) => {
@@ -1208,12 +1302,13 @@
     hideArchitectureDetail();
 
     const zoom = project.zoom || 13;
-    map.flyTo(project.coords, zoom, { duration: 1.8, easeLinearity: 0.25 });
+    const waitForMove = waitForMapSettled();
+    map.flyTo(project.coords, zoom, { duration: FLY_DURATION, easeLinearity: 0.25 });
 
-    map.once('moveend', () => {
+    waitForMove.then(() => {
       architectureRevealTimeout = setTimeout(() => {
         renderArchitectureDetail(project);
-      }, 1000);
+      }, SHEET_DELAY);
     });
   }
 
@@ -1256,12 +1351,64 @@
     return acc;
   }, {});
 
+  const navToggle = document.getElementById('navToggle');
+  const navScrim = document.getElementById('navScrim');
+  const pageBody = document.body;
+  let navIsOpen = false;
+
+  function setNavState(open) {
+    if (!pageBody) {
+      return;
+    }
+    navIsOpen = open;
+    pageBody.classList.toggle('nav-open', open);
+    if (navToggle) {
+      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      navToggle.setAttribute('aria-label', open ? 'Fermer le menu Accueil' : 'Ouvrir le menu Accueil');
+    }
+    if (navScrim) {
+      navScrim.hidden = !open;
+    }
+    scheduleMapInvalidate(150);
+  }
+
+  function closeNav() {
+    if (navIsOpen) {
+      setNavState(false);
+    }
+  }
+
+  if (navToggle) {
+    navToggle.addEventListener('click', () => {
+      setNavState(!navIsOpen);
+    });
+  }
+
+  if (navScrim) {
+    navScrim.addEventListener('click', closeNav);
+  }
+
+  const desktopQuery = window.matchMedia('(min-width: 768px)');
+  if (desktopQuery && typeof desktopQuery.addEventListener === 'function') {
+    desktopQuery.addEventListener('change', (event) => {
+      if (event.matches) {
+        closeNav();
+      }
+    });
+  } else if (desktopQuery && typeof desktopQuery.addListener === 'function') {
+    desktopQuery.addListener((event) => {
+      if (event.matches) {
+        closeNav();
+      }
+    });
+  }
+
   const NAV_ITEMS = [
     { id: 'home', label: 'Accueil', screen: 'home', icon: 'home' },
     { id: 'projects', label: 'Études en France', screen: 'projects' },
     { id: 'publications', label: 'Publications', screen: 'publications' },
     { id: 'architecture', label: 'Architecture', screen: 'architecture' },
-    { id: 'contact', label: 'Contact', href: 'mailto:gabriel.oyarzun@studio-territoires.fr' }
+    { id: 'contact', label: 'Contact', screen: 'contact' }
   ];
 
   const navContainer = document.querySelector('.nav');
@@ -1272,6 +1419,9 @@
       link.textContent = item.label;
       link.rel = 'noopener';
       link.className = 'nav__link';
+      link.addEventListener('click', () => {
+        closeNav();
+      });
       navContainer.appendChild(link);
       return;
     }
@@ -1293,11 +1443,15 @@
       button.append(img, label);
     }
 
-    button.addEventListener('click', () => activateScreen(item.screen));
+    button.addEventListener('click', () => {
+      activateScreen(item.screen);
+      closeNav();
+    });
     navContainer.appendChild(button);
   });
 
   function activateScreen(id) {
+    closeNav();
     Object.entries(sections).forEach(([key, section]) => {
       if (!section) return;
       section.hidden = key !== id;
@@ -1309,6 +1463,14 @@
 
     activeScreen = id;
 
+    if (id === 'publications') {
+      setWheelMode('hover');
+    } else if (id === 'architecture') {
+      setWheelMode('enabled');
+    } else {
+      setWheelMode('disabled');
+    }
+
     if (id === 'projects') {
       toProjects();
     } else if (id === 'publications') {
@@ -1317,6 +1479,8 @@
       toHome();
     } else if (id === 'architecture') {
       toArchitecture();
+    } else if (id === 'contact') {
+      toContact();
     }
 
     if (id !== 'projects') {
@@ -1325,10 +1489,16 @@
     if (id !== 'architecture') {
       hideArchitectureDetail();
     }
+    scheduleMapInvalidate(200);
   }
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
+      if (navIsOpen) {
+        event.preventDefault();
+        closeNav();
+        return;
+      }
       if (lightboxElement && !lightboxElement.hidden) {
         event.preventDefault();
         closeLightbox();
@@ -1370,6 +1540,13 @@
   const archElectricity = document.getElementById('archDetailElectricity');
   const archWater = document.getElementById('archDetailWater');
   const archGallery = document.getElementById('archGallery');
+  const contactZoomButton = document.getElementById('contactZoom');
+  if (contactZoomButton) {
+    contactZoomButton.addEventListener('click', () => {
+      map.flyTo(CONTACT_CENTER, CONTACT_ZOOM, { duration: FLY_DURATION, easeLinearity: 0.25 });
+      scheduleMapInvalidate(220);
+    });
+  }
   const lightboxElement = document.getElementById('lightbox');
   const lightboxImage = document.getElementById('lightboxImage');
   const lightboxCaption = document.getElementById('lightboxCaption');
@@ -1394,6 +1571,7 @@
     panelElement.scrollTop = 0;
     panelElement.hidden = false;
     hideProjectIntro();
+    scheduleMapInvalidate(160);
   }
 
   function closeProjectPanel({ resetIntro = true } = {}) {
@@ -1405,6 +1583,7 @@
       showProjectIntro();
     }
     map.closePopup();
+    scheduleMapInvalidate(160);
   }
 
   if (projectCloseButton) {
@@ -1584,6 +1763,18 @@
     hideArchitectureDetail();
     ensureArchitectureMarkers();
     map.flyTo(ARCHITECTURE_CENTER, ARCHITECTURE_ZOOM, { duration: 2.2, easeLinearity: 0.22 });
+  }
+
+  function toContact() {
+    removeProjectMarkers();
+    removeArchitectureMarkers();
+    closeProjectPanel({ resetIntro: false });
+    hideProjectIntro();
+    hideArchitectureDetail();
+    hideArchitectureIntro();
+    closeLightbox();
+    stopPhotoCard();
+    map.flyTo(CONTACT_CENTER, CONTACT_ZOOM, { duration: FLY_DURATION, easeLinearity: 0.3 });
   }
 
   map.on('click', () => {

@@ -1,0 +1,38 @@
+:root {
+  /* Pin sizes synchronized across pages */
+  --pin-chef-d: 28px;
+  --pin-chef-b: 4px;
+  --pin-charge-d: 22px;
+  --pin-charge-b: 3px;
+  --cluster-d: 36px;
+  --cluster-b: 4px;
+  --cluster-font: 14px;
+  --cluster-weight: 700;
+  /* Bottom sheet styling */
+  --sheet-radius: 16px;
+  --sheet-bg: rgba(255, 255, 255, 0.8);
+  --sheet-blur: 4px;
+  /* Color tokens reused in JS */
+  --color-stroke: #000000;
+  --color-fill: #ffffff;
+  /* Layout breakpoints */
+  --bp-mobile: 768px;
+  --bp-desktop: 1024px;
+}
+
+/* Safe-area padding helpers shared across overlays */
+.safe-top {
+  padding-top: max(16px, env(safe-area-inset-top));
+}
+
+.safe-bottom {
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+.safe-left {
+  padding-left: max(16px, env(safe-area-inset-left));
+}
+
+.safe-right {
+  padding-right: max(16px, env(safe-area-inset-right));
+}
