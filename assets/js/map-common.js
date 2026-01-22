@@ -41,6 +41,7 @@
     const listeners = [
       ['resize', invalidate],
       ['orientationchange', invalidate],
+      ['map:invalidate', invalidate],
       [
         'visibilitychange',
         () => {
@@ -55,7 +56,13 @@
       window.addEventListener(event, handler, { passive: true });
     });
 
-    resizeHandlers.set(map, { invalidate, listeners });
+    let resizeObserver = null;
+    if (typeof window.ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => invalidate());
+      resizeObserver.observe(map.getContainer());
+    }
+
+    resizeHandlers.set(map, { invalidate, listeners, resizeObserver });
   }
 
   function initMap(containerId, { center, zoom, scrollWheelZoom = false, wheelToggleOnHover = false } = {}) {
