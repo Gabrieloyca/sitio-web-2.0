@@ -13,12 +13,14 @@
     navPanel.classList.remove('is-active');
     navPanel.setAttribute('aria-hidden', 'true');
     navToggle.setAttribute('aria-expanded', 'false');
+    window.dispatchEvent(new Event('map:invalidate'));
   }
 
   function openPanel() {
     navPanel.classList.add('is-active');
     navPanel.setAttribute('aria-hidden', 'false');
     navToggle.setAttribute('aria-expanded', 'true');
+    window.dispatchEvent(new Event('map:invalidate'));
   }
 
   navToggle.addEventListener('click', () => {
