@@ -49,7 +49,7 @@
     const marker = L.marker(project.coords, { icon: MapCommon.createPinIcon(project.role) });
 
     marker.on('click', () => {
-      populateSheet(project);
+      populateArchSheet(project);
       MapCommon.flyToWithSheet(map, marker.getLatLng(), sheet, {
         zoom: Math.max(ZOOMS.arquitectura + 1, 16)
       });
@@ -64,7 +64,7 @@
 
   map.addLayer(clusterGroup);
 
-  function populateSheet(project) {
+  function populateArchSheet(project) {
     document.getElementById('archTitle').textContent = project.title;
     document.getElementById('archTeam').textContent = project.team;
     document.getElementById('archYear').textContent = project.year;

@@ -70,7 +70,7 @@
     const marker = L.marker(project.coords, { icon: MapCommon.createPinIcon(project.role) });
 
     marker.on('click', () => {
-      populateSheet(project);
+      populateProjectSheet(project);
       MapCommon.flyToWithSheet(map, marker.getLatLng(), sheet, {
         zoom: Math.max(ZOOMS.movilidad + 2, 14)
       });
@@ -97,7 +97,7 @@
     statCharge.textContent = projects.filter((item) => item.role === 'charge').length;
   }
 
-  function populateSheet(project) {
+  function populateProjectSheet(project) {
     document.getElementById('ppTitle').textContent = project.title;
     document.getElementById('ppYear').textContent = project.year;
     document.getElementById('ppClient').textContent = project.client;
