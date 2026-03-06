@@ -2,93 +2,147 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Gabriel Oyarzun – Accueil</title>
-    <!-- Fuentes y hojas de estilo base -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portfolio – Gabriel Oyarzun</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+4psl9qLJf8Z64Knu8AjU2dHuxZiZsa1onbXqhVI8=" crossorigin />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-    <link rel="stylesheet" href="assets/css/vars.css" />
-    <link rel="stylesheet" href="assets/css/site.css" />
+    <link rel="stylesheet" href="css/main.css" />
   </head>
   <body>
-    <div class="page full-height">
-      <div class="map-wrapper" role="presentation">
-        <div id="map" class="map" aria-hidden="true"></div>
-        <div class="home-portrait" aria-hidden="true">
-          <div class="home-portrait__frame">
-            <img src="assets/images/portrait-gabriel.jpeg" alt="" loading="lazy" />
-          </div>
+    <div id="map" aria-hidden="true"></div>
+
+    <header class="header" role="banner">
+      <nav class="nav" aria-label="Navigation principale"></nav>
+    </header>
+
+    <main>
+      <section id="screen-home" data-screen="home" aria-labelledby="heroTitle">
+        <div class="hero" id="heroBox">
+          <h1 id="heroTitle">Je suis <b>Gabriel Oyarzun</b>,<br /><b>Architecte urbaniste</b>, passionné par le développement durable des territoires.</h1>
+          <p class="hint">Pour en savoir plus :</p>
+          <ul class="bullets">
+            <li data-target="projects"><span class="hand-icon" aria-hidden="true"></span> Études de mobilité en France</li>
+            <li data-target="publications"><span class="hand-icon" aria-hidden="true"></span> Recherche & publications</li>
+            <li data-target="architecture"><span class="hand-icon" aria-hidden="true"></span> Projets d’architecture &amp; plus</li>
+          </ul>
         </div>
-      </div>
-
-      <header class="site-header safe-top" role="banner">
-        <a href="index.html" class="site-header__brand" aria-label="Retour à l’accueil">GO</a>
-        <nav class="site-nav" aria-label="Navigation principale">
-          <a class="site-nav__link" href="etudes.html">Études de mobilité</a>
-          <a class="site-nav__link" href="publications.html">Recherche &amp; publications</a>
-          <a class="site-nav__link" href="architecture.html">Projets d’architecture</a>
-          <a class="site-nav__link" href="contact.html">Contact</a>
-        </nav>
-        <button
-          type="button"
-          class="nav-toggle"
-          data-nav-toggle
-          aria-label="Ouvrir le menu Accueil"
-          aria-expanded="false"
-          aria-controls="navPanel"
-        >
-          <!-- Ícono casa accesible -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-hidden="true">
-            <path
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.6"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m3 9.5 9-7 9 7M5.5 11V21h13V11"
-            />
-            <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M9.5 21v-6h5v6" />
-          </svg>
-        </button>
-      </header>
-
-      <aside
-        id="navPanel"
-        class="nav-panel safe-top safe-right safe-bottom"
-        data-nav-panel
-        aria-hidden="true"
-        aria-label="Navigation mobile"
-      >
-        <h2 class="nav-panel__title">Accueil</h2>
-        <ul class="nav-panel__list">
-          <li><a class="nav-panel__link" href="etudes.html">Études de mobilité</a></li>
-          <li><a class="nav-panel__link" href="publications.html">Recherche &amp; publications</a></li>
-          <li><a class="nav-panel__link" href="architecture.html">Projets d’architecture</a></li>
-          <li><a class="nav-panel__link" href="contact.html">Contact</a></li>
-        </ul>
-      </aside>
-
-      <section class="home-overlay safe-bottom" aria-labelledby="homeOverlayTitle">
-        <h1 id="homeOverlayTitle" class="home-overlay__title">En savoir plus</h1>
-        <p>Explorez les cartes thématiques pour découvrir les projets et publications clés.</p>
-        <div class="home-chips" role="list">
-          <a class="home-chip" role="listitem" href="etudes.html">Mobilité</a>
-          <a class="home-chip" role="listitem" href="publications.html">Recherche</a>
-          <a class="home-chip" role="listitem" href="architecture.html">Architecture</a>
-          <a class="home-chip" role="listitem" href="contact.html">Contact</a>
+        <div class="photo-card" id="stamp">
+          <div class="photo" role="img" aria-label="Portrait stylisé de Gabriel Oyarzun"></div>
         </div>
       </section>
+
+      <section id="screen-projects" data-screen="projects" hidden aria-labelledby="projectIntroTitle">
+        <div class="overlay">
+          <h2 id="projectIntroTitle">Études en France</h2>
+          <p><strong><span id="statCharge"></span></strong> projets en tant que chargé d’études</p>
+          <p><strong><span id="statChef"></span></strong> en tant que chef de projet</p>
+          <p style="margin-top: 14px"><em>&gt; Cliquez sur les projets pour en savoir plus</em></p>
+        </div>
+        <article id="projectPanel" class="panel" hidden aria-live="polite">
+          <button type="button" class="panel__close" id="ppClose" aria-label="Fermer le détail du projet">
+            <span aria-hidden="true">×</span>
+          </button>
+          <h3 id="ppTitle"></h3>
+          <dl class="meta" aria-label="Détails du projet">
+            <div>
+              <dt>Année</dt>
+              <dd id="ppDate"></dd>
+            </div>
+            <div>
+              <dt>Client</dt>
+              <dd id="ppClient"></dd>
+            </div>
+            <div>
+              <dt>Partenaire</dt>
+              <dd id="ppPartner"></dd>
+            </div>
+            <div>
+              <dt>Rôle</dt>
+              <dd id="ppRole"></dd>
+            </div>
+            <div>
+              <dt>Type de projet</dt>
+              <dd id="ppType"></dd>
+            </div>
+          </dl>
+          <h4>Description</h4>
+          <p id="ppDesc"></p>
+          <h4>Compétences mobilisées</h4>
+          <ul id="ppSkills" class="skill-list"></ul>
+        </article>
+      </section>
+
+      <section
+        id="screen-publications"
+        data-screen="publications"
+        hidden
+        aria-labelledby="pubTitle"
+      >
+        <div class="pubs-heading">
+          <h2 id="pubTitle">Recherche &amp; publications</h2>
+          <p>Une sélection d’articles académiques et de travaux de recherche auxquels j’ai contribué.</p>
+        </div>
+        <div class="pubs-shelf" role="region" aria-live="polite">
+          <div id="pubList" class="pubs-list" role="list"></div>
+        </div>
+      </section>
+
+      <section
+        id="screen-architecture"
+        data-screen="architecture"
+        hidden
+        aria-labelledby="archIntroTitle"
+      >
+        <div class="arch-floating" id="archIntro" role="complementary" aria-live="polite">
+          <h2 id="archIntroTitle">Projets d’architecture et plus :</h2>
+          <p>3 projets résidentiels, 1 projet de tiny house, 3 rénovations réalisés, 1 régularisation dans le cadre du petit studio masesmas.</p>
+          <p class="arch-floating__hint">Vous pouvez cliquer pour en savoir plus sur certains projets sur la carte.</p>
+        </div>
+        <article id="archDetail" class="arch-detail" hidden aria-live="polite">
+          <header class="arch-detail__header">
+            <h3 id="archDetailTitle"></h3>
+            <p id="archDetailTeam" class="arch-detail__team"></p>
+          </header>
+          <dl class="arch-detail__meta">
+            <div>
+              <dt>Architectes</dt>
+              <dd id="archDetailArchitects"></dd>
+            </div>
+            <div>
+              <dt>Collaborateurs</dt>
+              <dd id="archDetailCollaborators"></dd>
+            </div>
+            <div>
+              <dt>Calculs</dt>
+              <dd id="archDetailEngineering"></dd>
+            </div>
+            <div>
+              <dt>Électricité</dt>
+              <dd id="archDetailElectricity"></dd>
+            </div>
+            <div>
+              <dt>Plan d’eau</dt>
+              <dd id="archDetailWater"></dd>
+            </div>
+          </dl>
+          <div id="archGallery" class="arch-gallery" role="list"></div>
+        </article>
+      </section>
+    </main>
+
+    <div id="lightbox" class="lightbox" hidden role="dialog" aria-modal="true" aria-labelledby="lightboxCaption">
+      <button type="button" class="lightbox__close" id="lightboxClose" aria-label="Fermer l’image agrandie">
+        <span aria-hidden="true">×</span>
+      </button>
+      <img id="lightboxImage" alt="" />
+      <p id="lightboxCaption"></p>
     </div>
 
-    <!-- Librerías y scripts comunes -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1j7kGStp1aE2l9I4hYJbPEw24kTx5cRQvM2EjQ64=" crossorigin></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/map-common.js"></script>
-    <script src="assets/js/nav.js"></script>
-    <script src="assets/js/home.js"></script>
+    <script src="js/app.js"></script>
   </body>
 </html>
